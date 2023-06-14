@@ -11,20 +11,22 @@ class Channel:
         Экземпляр инициализируется id канала. Дальше все данные будут подтягиваться по API
         """
         self._channel_id = channel_id
-        self.title = Channel.get_info(self)['items'][0]['snippet']['title']
-        self.info = Channel.get_info(self)['items'][0]['snippet']['description']
+
+        info = Channel.get_info(self)
+        self.title = info['items'][0]['snippet']['title']
+        self.description = info['items'][0]['snippet']['description']
         self.url = f'https://www.youtube.com/channel/{self._channel_id}'
-        self.subscribers = Channel.get_info(self)['items'][0]['statistics']['subscriberCount']
-        self.video_count = Channel.get_info(self)['items'][0]['statistics']['videoCount']
-        self.views = Channel.get_info(self)['items'][0]['statistics']['viewCount']
+        self.subscribers = info['items'][0]['statistics']['subscriberCount']
+        self.video_count = info['items'][0]['statistics']['videoCount']
+        self.views = info['items'][0]['statistics']['viewCount']
 
     @property
     def channel_id(self):
         return self._channel_id
 
-    def get_info(self) -> None:
+    def get_info(self) -> dict:
         """
-        Выводит в консоль информацию о канале
+        Возвращает записанную информацию о канале в формате dict
         """
         channel = youtube.channels().list(id=self._channel_id, part='snippet,statistics').execute()
         return channel
@@ -48,7 +50,7 @@ class Channel:
         """
         data = {'channel_id': self._channel_id,
                 'title': self.title,
-                'info': self.info,
+                'info': self.description,
                 'url': self.url,
                 'subscribers': self.subscribers,
                 'video_count': self.video_count,
