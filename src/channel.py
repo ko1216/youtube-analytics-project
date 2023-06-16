@@ -12,39 +12,47 @@ class Channel:
         """
         self._channel_id = channel_id
 
+        info = Channel.get_info(self)
+        self.title = info['items'][0]['snippet']['title']
+        self.description = info['items'][0]['snippet']['description']
+        self.url = f'https://www.youtube.com/channel/{self._channel_id}'
+        self.subscribers = info['items'][0]['statistics']['subscriberCount']
+        self.video_count = info['items'][0]['statistics']['videoCount']
+        self.views = info['items'][0]['statistics']['viewCount']
+
+    def __str__(self):
+        return f'Имя канала: {self.title}, ссылка на канал: {self.url}'
+
+    def __add__(self, other_channel):
+        return int(self.subscribers) + int(other_channel.subscribers)
+
+    def __sub__(self, other_channel):
+        return int(self.subscribers) - int(other_channel.subscribers)
+
+    def __lt__(self, other):
+        return int(self.subscribers) < int(other.subscribers)
+
+    def __gt__(self, other):
+        return int(self.subscribers) > int(other.subscribers)
+
+    def __le__(self, other):
+        return int(self.subscribers) <= int(other.subscribers)
+
+    def __ge__(self, other):
+        return int(self.subscribers) >= int(other.subscribers)
+
+    def __eq__(self, other):
+        return int(self.subscribers) == int(other.subscribers)
+
     @property
     def channel_id(self):
         return self._channel_id
 
-    @property
-    def title(self):
-        return Channel.get_info(self)['items'][0]['snippet']['title']
-
-    @property
-    def info(self):
-        return Channel.get_info(self)['items'][0]['snippet']['description']
-
-    @property
-    def url(self):
-        return f'https://www.youtube.com/channel/{self.channel_id}'
-
-    @property
-    def subscribers(self):
-        return Channel.get_info(self)['items'][0]['statistics']['subscriberCount']
-
-    @property
-    def video_count(self):
-        return Channel.get_info(self)['items'][0]['statistics']['videoCount']
-
-    @property
-    def views(self):
-        return Channel.get_info(self)['items'][0]['statistics']['viewCount']
-
-    def get_info(self) -> None:
+    def get_info(self) -> dict:
         """
-        Выводит в консоль информацию о канале
+        Возвращает записанную информацию о канале в формате dict
         """
-        channel = youtube.channels().list(id=self.channel_id, part='snippet,statistics').execute()
+        channel = youtube.channels().list(id=self._channel_id, part='snippet,statistics').execute()
         return channel
 
     def print_info(self) -> None:
@@ -64,9 +72,9 @@ class Channel:
         """
         Возвращает атрибуты экземпляра в формате json и записывает их в файл
         """
-        data = {'channel_id': self.channel_id,
+        data = {'channel_id': self._channel_id,
                 'title': self.title,
-                'info': self.info,
+                'info': self.description,
                 'url': self.url,
                 'subscribers': self.subscribers,
                 'video_count': self.video_count,
