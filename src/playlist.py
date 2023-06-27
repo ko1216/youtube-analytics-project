@@ -9,8 +9,8 @@ class PlayList:
     def __init__(self, pl_video_id):
         self.pl_video_id = pl_video_id
 
-        info = PlayList.get_info(self)
-        self.title = (info[0]['items'][0]['snippet']['title']).split('.')[0]
+        info = PlayList.get_pl_info(self)
+        self.title = info['items'][0]['snippet']['title']
         self.url = f'https://www.youtube.com/playlist?list={self.pl_video_id}'
 
     def get_video_list(self):
@@ -20,7 +20,7 @@ class PlayList:
         video_ids: list[str] = [video['contentDetails']['videoId'] for video in playlist_videos['items']]
         return video_ids
 
-    def get_info(self):
+    def get_videos_info(self):
         videos_info = []
 
         for video_id in self.get_video_list():
@@ -29,6 +29,11 @@ class PlayList:
                                                id=video_id).execute()
             videos_info.append(video_info)
         return videos_info
+
+    def get_pl_info(self):
+        pl_info = youtube.playlists().list(id=self.pl_video_id, part='snippet').execute()
+
+        return pl_info
 
     @property
     def total_duration(self):
@@ -49,7 +54,7 @@ class PlayList:
         return total_duration
 
     def show_best_video(self):
-        video_info = PlayList.get_info(self)
+        video_info = PlayList.get_videos_info(self)
 
         like_counter = 0
 
